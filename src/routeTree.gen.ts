@@ -10,33 +10,140 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as AttendanceRouteImport } from './routes/attendance'
+import { Route as CamerasRouteImport } from './routes/cameras'
+import { Route as HealthRouteImport } from './routes/health'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as MinersRouteImport } from './routes/miners'
+import { Route as MinersIdRouteImport } from './routes/miners.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AttendanceRoute = AttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CamerasRoute = CamerasRouteImport.update({
+  id: '/cameras',
+  path: '/cameras',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MinersRoute = MinersRouteImport.update({
+  id: '/miners',
+  path: '/miners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MinersIdRoute = MinersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MinersRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/analytics': typeof AnalyticsRoute
+  '/attendance': typeof AttendanceRoute
+  '/cameras': typeof CamerasRoute
+  '/health': typeof HealthRoute
+  '/map': typeof MapRoute
+  '/miners': typeof MinersRouteWithChildren
+  '/miners/$id': typeof MinersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/analytics': typeof AnalyticsRoute
+  '/attendance': typeof AttendanceRoute
+  '/cameras': typeof CamerasRoute
+  '/health': typeof HealthRoute
+  '/map': typeof MapRoute
+  '/miners': typeof MinersRouteWithChildren
+  '/miners/$id': typeof MinersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/analytics': typeof AnalyticsRoute
+  '/attendance': typeof AttendanceRoute
+  '/cameras': typeof CamerasRoute
+  '/health': typeof HealthRoute
+  '/map': typeof MapRoute
+  '/miners': typeof MinersRouteWithChildren
+  '/miners/$id': typeof MinersIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/alerts'
+    | '/analytics'
+    | '/attendance'
+    | '/cameras'
+    | '/health'
+    | '/map'
+    | '/miners'
+    | '/miners/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/alerts'
+    | '/analytics'
+    | '/attendance'
+    | '/cameras'
+    | '/health'
+    | '/map'
+    | '/miners'
+    | '/miners/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/alerts'
+    | '/analytics'
+    | '/attendance'
+    | '/cameras'
+    | '/health'
+    | '/map'
+    | '/miners'
+    | '/miners/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlertsRoute: typeof AlertsRoute
+  AnalyticsRoute: typeof AnalyticsRoute
+  AttendanceRoute: typeof AttendanceRoute
+  CamerasRoute: typeof CamerasRoute
+  HealthRoute: typeof HealthRoute
+  MapRoute: typeof MapRoute
+  MinersRoute: typeof MinersRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +155,85 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attendance': {
+      id: '/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AttendanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cameras': {
+      id: '/cameras'
+      path: '/cameras'
+      fullPath: '/cameras'
+      preLoaderRoute: typeof CamerasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/miners': {
+      id: '/miners'
+      path: '/miners'
+      fullPath: '/miners'
+      preLoaderRoute: typeof MinersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/miners/$id': {
+      id: '/miners/$id'
+      path: '/$id'
+      fullPath: '/miners/$id'
+      preLoaderRoute: typeof MinersIdRouteImport
+      parentRoute: typeof MinersRoute
+    }
   }
 }
 
+interface MinersRouteChildren {
+  MinersIdRoute: typeof MinersIdRoute
+}
+
+const MinersRouteChildren: MinersRouteChildren = {
+  MinersIdRoute: MinersIdRoute,
+}
+
+const MinersRouteWithChildren =
+  MinersRoute._addFileChildren(MinersRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
+  AnalyticsRoute: AnalyticsRoute,
+  AttendanceRoute: AttendanceRoute,
+  CamerasRoute: CamerasRoute,
+  HealthRoute: HealthRoute,
+  MapRoute: MapRoute,
+  MinersRoute: MinersRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
