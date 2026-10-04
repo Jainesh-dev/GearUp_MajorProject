@@ -73,7 +73,7 @@ export const alerts: Alert[] = [
 
 const hours = ["04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00"];
 export function helmetHistory(id: string) {
-  const h = helmets.find((x) => x.id === id) ?? helmets[0];
+  const h = helmets.find((x) => x.id === id) ?? helmets[0]!;
   const seed = parseInt(id.slice(1), 10) || 1;
   return hours.map((t, i) => {
     const w = Math.sin(i + seed) * 1.2;
@@ -88,7 +88,7 @@ export function helmetHistory(id: string) {
 }
 
 export function helmetEvents(id: string) {
-  const h = helmets.find((x) => x.id === id) ?? helmets[0];
+  const h = helmets.find((x) => x.id === id) ?? helmets[0]!;
   const ev = [
     { time: "08:02 AM", text: "Helmet connected", level: "info" },
     { time: "08:04 AM", text: "Attendance recorded (RFID)", level: "info" },
@@ -129,7 +129,7 @@ export type Range = "24h" | "7d" | "30d";
 function series(n: number, label: (i: number) => string, base: Record<string, number>, amp: Record<string, number>) {
   return Array.from({ length: n }, (_, i) => {
     const row: Record<string, number | string> = { t: label(i) };
-    for (const k of Object.keys(base)) row[k] = +(base[k] + Math.sin(i * 0.7 + k.length) * amp[k] + (i % 3) * amp[k] * 0.15).toFixed(1);
+    for (const k of Object.keys(base)) row[k] = +(base[k]! + Math.sin(i * 0.7 + k.length) * amp[k]! + (i % 3) * amp[k]! * 0.15).toFixed(1);
     return row;
   });
 }

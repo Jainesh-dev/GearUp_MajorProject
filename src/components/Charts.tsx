@@ -50,7 +50,7 @@ export function Bars({ data, x, series, h = 220, stacked }: { data: Row[]; x: st
       <BarChart data={data}>
         {common(x)}
         {series.length > 1 && <Legend wrapperStyle={{ fontSize: 11 }} />}
-        {series.map((s) => <Bar key={s.key} dataKey={s.key} name={s.name ?? s.key} fill={s.color} stackId={stacked ? "a" : undefined} radius={stacked ? 0 : [2, 2, 0, 0]} />)}
+        {series.map((s) => <Bar key={s.key} dataKey={s.key} name={s.name ?? s.key} fill={s.color} {...(stacked ? { stackId: "a" } : {})} radius={stacked ? 0 : [2, 2, 0, 0]} />)}
       </BarChart>
     </ResponsiveContainer>
   );
