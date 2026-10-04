@@ -2,7 +2,7 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart, Respons
 import { chartTheme } from "./kit";
 
 type Row = Record<string, string | number>;
-type S = { key: string; color: string; name?: string };
+type S = { key: string; color: string; name?: string | undefined };
 
 const common = (x: string) => (
   <>
@@ -44,7 +44,7 @@ export function TrendLine({ data, x, series, h = 220 }: { data: Row[]; x: string
   );
 }
 
-export function Bars({ data, x, series, h = 220, stacked }: { data: Row[]; x: string; series: S[]; h?: number; stacked?: boolean }) {
+export function Bars({ data, x, series, h = 220, stacked }: { data: Row[]; x: string; series: S[]; h?: number; stacked?: boolean | undefined }) {
   return (
     <ResponsiveContainer width="100%" height={h}>
       <BarChart data={data}>

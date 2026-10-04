@@ -142,8 +142,8 @@ export function analytics(range: Range) {
   const [n, l] = labels[range];
   return {
     env: series(n, l, { temperature: 31, humidity: 63, methane: 180, aqi: 55 }, { temperature: 2.5, humidity: 5, methane: 60, aqi: 15 }),
-    alerts: series(n, l, { critical: 1.5, warning: 3 }, { critical: 1.4, warning: 2 }).map((r) => ({ ...r, critical: Math.max(0, Math.round(r.critical as number)), warning: Math.max(0, Math.round(r.warning as number)) })),
-    attendance: series(n, l, { present: 21, absent: 2, late: 1.5 }, { present: 2, absent: 1.2, late: 1.2 }).map((r) => ({ ...r, present: Math.round(r.present as number), absent: Math.max(0, Math.round(r.absent as number)), late: Math.max(0, Math.round(r.late as number)) })),
+    alerts: series(n, l, { critical: 1.5, warning: 3 }, { critical: 1.4, warning: 2 }).map((r) => ({ ...r, critical: Math.max(0, Math.round(r["critical"] as number)), warning: Math.max(0, Math.round(r["warning"] as number)) })),
+    attendance: series(n, l, { present: 21, absent: 2, late: 1.5 }, { present: 2, absent: 1.2, late: 1.2 }).map((r) => ({ ...r, present: Math.round(r["present"] as number), absent: Math.max(0, Math.round(r["absent"] as number)), late: Math.max(0, Math.round(r["late"] as number)) })),
     battery: helmets.map((h) => ({ t: h.id, battery: h.battery })),
   };
 }
