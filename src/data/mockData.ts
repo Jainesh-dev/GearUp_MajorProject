@@ -73,7 +73,7 @@ export const alerts: Alert[] = [
 
 const hours = ["04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00"];
 export function helmetHistory(id: string) {
-  const h = helmets.find((x) => x.id === id) ?? helmets[0];
+  const h = helmets.find((x) => x.id === id) ?? helmets[0]!;
   const seed = parseInt(id.slice(1), 10) || 1;
   return hours.map((t, i) => {
     const w = Math.sin(i + seed) * 1.2;
@@ -88,7 +88,7 @@ export function helmetHistory(id: string) {
 }
 
 export function helmetEvents(id: string) {
-  const h = helmets.find((x) => x.id === id) ?? helmets[0];
+  const h = helmets.find((x) => x.id === id) ?? helmets[0]!;
   const ev = [
     { time: "08:02 AM", text: "Helmet connected", level: "info" },
     { time: "08:04 AM", text: "Attendance recorded (RFID)", level: "info" },
@@ -129,21 +129,21 @@ export type Range = "24h" | "7d" | "30d";
 function series(n: number, label: (i: number) => string, base: Record<string, number>, amp: Record<string, number>) {
   return Array.from({ length: n }, (_, i) => {
     const row: Record<string, number | string> = { t: label(i) };
-    for (const k of Object.keys(base)) row[k] = +(base[k] + Math.sin(i * 0.7 + k.length) * amp[k] + (i % 3) * amp[k] * 0.15).toFixed(1);
+    for (const k of Object.keys(base)) row[k] = +(base[k]! + Math.sin(i * 0.7 + k.length) * amp[k]! + (i % 3) * amp[k]! * 0.15).toFixed(1);
     return row;
   });
 }
 const labels: Record<Range, [number, (i: number) => string]> = {
   "24h": [24, (i) => `${String(i).padStart(2, "0")}:00`],
-  "7d": [7, (i) => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]],
+  "7d": [7, (i) => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]!],
   "30d": [30, (i) => `D${i + 1}`],
 };
 export function analytics(range: Range) {
   const [n, l] = labels[range];
   return {
     env: series(n, l, { temperature: 31, humidity: 63, methane: 180, aqi: 55 }, { temperature: 2.5, humidity: 5, methane: 60, aqi: 15 }),
-    alerts: series(n, l, { critical: 1.5, warning: 3 }, { critical: 1.4, warning: 2 }).map((r) => ({ ...r, critical: Math.max(0, Math.round(r.critical as number)), warning: Math.max(0, Math.round(r.warning as number)) })),
-    attendance: series(n, l, { present: 21, absent: 2, late: 1.5 }, { present: 2, absent: 1.2, late: 1.2 }).map((r) => ({ ...r, present: Math.round(r.present as number), absent: Math.max(0, Math.round(r.absent as number)), late: Math.max(0, Math.round(r.late as number)) })),
+    alerts: series(n, l, { critical: 1.5, warning: 3 }, { critical: 1.4, warning: 2 }).map((r) => ({ ...r, critical: Math.max(0, Math.round(r["critical"] as number)), warning: Math.max(0, Math.round(r["warning"] as number)) })),
+    attendance: series(n, l, { present: 21, absent: 2, late: 1.5 }, { present: 2, absent: 1.2, late: 1.2 }).map((r) => ({ ...r, present: Math.round(r["present"] as number), absent: Math.max(0, Math.round(r["absent"] as number)), late: Math.max(0, Math.round(r["late"] as number)) })),
     battery: helmets.map((h) => ({ t: h.id, battery: h.battery })),
   };
 }

@@ -64,7 +64,7 @@ function HelmetPage() {
         <ol className="relative ml-2 border-l">
           {ev.map((e, i) => (
             <li key={i} className="mb-4 ml-5 last:mb-0">
-              <span className="absolute -left-[5px] mt-1.5"><Dot tone={lvl[e.level]} pulse={e.level === "crit"} /></span>
+              <span className="absolute -left-[5px] mt-1.5"><Dot tone={lvl[e.level] ?? "info"} pulse={e.level === "crit"} /></span>
               <p className="font-mono text-xs text-muted-foreground">{e.time}</p>
               <p className="text-sm">{e.text}</p>
             </li>

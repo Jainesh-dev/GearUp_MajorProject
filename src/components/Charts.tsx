@@ -2,7 +2,7 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart, Respons
 import { chartTheme } from "./kit";
 
 type Row = Record<string, string | number>;
-type S = { key: string; color: string; name?: string };
+type S = { key: string; color: string; name?: string | undefined };
 
 const common = (x: string) => (
   <>
@@ -44,13 +44,13 @@ export function TrendLine({ data, x, series, h = 220 }: { data: Row[]; x: string
   );
 }
 
-export function Bars({ data, x, series, h = 220, stacked }: { data: Row[]; x: string; series: S[]; h?: number; stacked?: boolean }) {
+export function Bars({ data, x, series, h = 220, stacked }: { data: Row[]; x: string; series: S[]; h?: number; stacked?: boolean | undefined }) {
   return (
     <ResponsiveContainer width="100%" height={h}>
       <BarChart data={data}>
         {common(x)}
         {series.length > 1 && <Legend wrapperStyle={{ fontSize: 11 }} />}
-        {series.map((s) => <Bar key={s.key} dataKey={s.key} name={s.name ?? s.key} fill={s.color} stackId={stacked ? "a" : undefined} radius={stacked ? 0 : [2, 2, 0, 0]} />)}
+        {series.map((s) => <Bar key={s.key} dataKey={s.key} name={s.name ?? s.key} fill={s.color} {...(stacked ? { stackId: "a" } : {})} radius={stacked ? 0 : [2, 2, 0, 0]} />)}
       </BarChart>
     </ResponsiveContainer>
   );

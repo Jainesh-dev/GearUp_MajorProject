@@ -20,11 +20,11 @@ const toneText: Record<Tone, string> = { ok: "text-ok", warn: "text-warn", crit:
 const toneBg: Record<Tone, string> = { ok: "bg-ok", warn: "bg-warn", crit: "bg-crit", off: "bg-off", info: "bg-info" };
 const toneBorder: Record<Tone, string> = { ok: "border-ok/40", warn: "border-warn/40", crit: "border-crit/50", off: "border-off/40", info: "border-info/40" };
 
-export function Dot({ tone, pulse }: { tone: Tone; pulse?: boolean }) {
+export function Dot({ tone, pulse }: { tone: Tone; pulse?: boolean | undefined }) {
   return <span className={cn("inline-block size-2 rounded-full", toneBg[tone], toneText[tone], pulse && "pulse-dot")} />;
 }
 
-export function StatusBadge({ value, tone }: { value: string; tone?: Tone }) {
+export function StatusBadge({ value, tone }: { value: string; tone?: Tone | undefined }) {
   const t = tone ?? toneOf(value);
   return (
     <span className={cn("inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 font-mono text-[11px] uppercase tracking-wider", toneText[t], toneBorder[t], "bg-surface")}>
@@ -34,7 +34,7 @@ export function StatusBadge({ value, tone }: { value: string; tone?: Tone }) {
   );
 }
 
-export function Panel({ title, action, children, className }: { title?: string; action?: ReactNode; children: ReactNode; className?: string }) {
+export function Panel({ title, action, children, className }: { title?: string | undefined; action?: ReactNode | undefined; children: ReactNode; className?: string | undefined }) {
   return (
     <section className={cn("rounded-md border bg-card", className)}>
       {title && (
@@ -48,7 +48,7 @@ export function Panel({ title, action, children, className }: { title?: string; 
   );
 }
 
-export function StatCard({ label, value, unit, tone = "ok", icon, note }: { label: string; value: string | number; unit?: string; tone?: Tone; icon?: ReactNode; note?: string }) {
+export function StatCard({ label, value, unit, tone = "ok", icon, note }: { label: string; value: string | number; unit?: string | undefined; tone?: Tone | undefined; icon?: ReactNode | undefined; note?: string | undefined }) {
   return (
     <div className={cn("relative overflow-hidden rounded-md border bg-card p-4")}>
       <div className={cn("absolute inset-y-0 left-0 w-1", toneBg[tone])} />
@@ -65,7 +65,7 @@ export function StatCard({ label, value, unit, tone = "ok", icon, note }: { labe
   );
 }
 
-export function SensorCard({ label, value, unit, tone, icon, sub }: { label: string; value: string | number; unit?: string; tone: Tone; icon: ReactNode; sub?: string }) {
+export function SensorCard({ label, value, unit, tone, icon, sub }: { label: string; value: string | number; unit?: string | undefined; tone: Tone; icon: ReactNode; sub?: string | undefined }) {
   return (
     <div className={cn("rounded-md border bg-surface p-4", toneBorder[tone])}>
       <div className="flex items-center justify-between">
@@ -81,7 +81,7 @@ export function SensorCard({ label, value, unit, tone, icon, sub }: { label: str
   );
 }
 
-export function PageTitle({ title, sub, action }: { title: string; sub?: string; action?: ReactNode }) {
+export function PageTitle({ title, sub, action }: { title: string; sub?: string | undefined; action?: ReactNode | undefined }) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
