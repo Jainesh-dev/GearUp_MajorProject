@@ -135,7 +135,7 @@ function series(n: number, label: (i: number) => string, base: Record<string, nu
 }
 const labels: Record<Range, [number, (i: number) => string]> = {
   "24h": [24, (i) => `${String(i).padStart(2, "0")}:00`],
-  "7d": [7, (i) => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]],
+  "7d": [7, (i) => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]!],
   "30d": [30, (i) => `D${i + 1}`],
 };
 export function analytics(range: Range) {
