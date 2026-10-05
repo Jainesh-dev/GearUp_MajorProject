@@ -1,14 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Activity, AlertTriangle, BarChart3, Camera, Cpu, HardHat, LayoutDashboard, Map, Menu, Siren, Users, X, CalendarCheck } from "lucide-react";
+import { Activity, BarChart3, Camera, Cpu, HardHat, LayoutDashboard, Map, Menu, Siren, Users, X, CalendarCheck } from "lucide-react";
 import { Dot } from "./kit";
 import { SOSModal } from "./SOSModal";
 
 const nav = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/", label: "Home", icon: LayoutDashboard },
   { to: "/miners", label: "Miners", icon: Users },
   { to: "/map", label: "Mine Map", icon: Map },
-  { to: "/alerts", label: "Alerts", icon: AlertTriangle },
   { to: "/attendance", label: "Attendance", icon: CalendarCheck },
   { to: "/cameras", label: "Camera Space", icon: Camera },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
@@ -82,7 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div className="ml-auto flex items-center gap-4">
             <span className="hidden items-center gap-2 rounded-sm border border-ok/40 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-ok sm:inline-flex">
-              <Dot tone="ok" pulse /> System Online
+              <Dot tone="ok" pulse /> All Systems Operational
             </span>
             <Clock />
             <button onClick={() => setSos(true)} className="rounded-sm bg-crit p-2 text-destructive-foreground lg:hidden" aria-label="SOS"><Siren className="size-4" /></button>
@@ -110,8 +109,8 @@ function Brand() {
 function SOSButton({ onClick }: { onClick: () => void }) {
   return (
     <button onClick={onClick} className="w-full overflow-hidden rounded-sm border border-crit/60 bg-crit/10 text-crit transition-colors hover:bg-crit/20">
-      <div className="hazard-stripe h-1.5" />
-      <div className="flex items-center justify-center gap-2 py-3 font-display text-lg font-bold uppercase tracking-widest"><Siren className="size-5" /> Emergency SOS</div>
+      
+      <div className="flex items-center justify-center gap-2 py-2.5 font-display text-base font-semibold uppercase tracking-widest"><Siren className="size-4" /> SOS</div>
     </button>
   );
 }

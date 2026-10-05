@@ -1,61 +1,120 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, Flame, HardHat, Thermometer, Users, Wind } from "lucide-react";
-import { alerts, helmets, summary, analytics } from "@/data/mockData";
-import { PageTitle, Panel, StatCard, StatusBadge } from "@/components/kit";
-import { MinerTable } from "@/components/MinerTable";
-import { MineMap } from "@/components/MineMap";
-import { TrendArea } from "@/components/Charts";
+import { AlertTriangle, HardHat, Network, ShieldCheck, Siren, Users, ArrowRight } from "lucide-react";
+import { homeAlerts, homeSummary as s, recentActivity, zoneStatus } from "@/data/mockData";
+import { Dot, PageTitle, StatusBadge, toneOf, type Tone } from "@/components/kit";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Dashboard — GearUp Smart Mining Helmet" },
-      { name: "description", content: "Live overview of miners, helmets, gas levels and alerts across the mine." },
-      { property: "og:title", content: "Dashboard — GearUp Smart Mining Helmet" },
-      { property: "og:description", content: "Live overview of miners, helmets, gas levels and alerts across the mine." },
+      { title: "Home — GearUp Smart Mining Helmet" },
+      { name: "description", content: "Mine safety at a glance: active miners, helmets online, alerts, network and SOS status." },
+      { property: "og:title", content: "Home — GearUp Smart Mining Helmet" },
+      { property: "og:description", content: "Mine safety at a glance: active miners, helmets online, alerts, network and SOS status." },
     ],
   }),
-  component: Dashboard,
+  component: Home,
 });
 
-function Dashboard() {
-  const active = alerts.filter((a) => a.category === "Critical" && a.status === "Active");
-  const env = analytics("24h").env.slice(-12);
+const toneText: Record<Tone, string> = { ok: "text-ok", warn: "text-warn", crit: "text-crit", off: "text-off", info: "text-info" };
+
+function Card({ label, value, sub, tone, icon, i }: { label: string; value: string; sub: string; tone: Tone; icon: React.ReactNode; i: number }) {
+  return (
+    <div className="glass animate-fade-up rounded-lg p-5" style={{ animationDelay: `${i * 60}ms` }}>
+      <div className="flex items-center justify-between"><span className="label-caps">{label}</span><span className={toneText[tone]}>{icon}</span></div>
+      <div className={`mt-4 font-display text-4xl font-semibold tracking-tight ${tone === "ok" || tone === "info" ? "text-foreground" : toneText[tone]}`}>{value}</div>
+      <p className={`mt-1 font-mono text-[11px] uppercase tracking-wider ${toneText[tone]}`}>{sub}</p>
+    </div>
+  );
+}
+
+function Home() {
   return (
     <>
-      <PageTitle title="Dashboard" sub="Shift B · Underground Level 2 · Demo data" />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <StatCard label="Active Miners" value={summary.activeMiners} icon={<Users className="size-4" />} note="All checked in" />
-        <StatCard label="Active Helmets" value={summary.activeHelmets} icon={<HardHat className="size-4" />} note="Transmitting" />
-        <StatCard label="Avg Temperature" value={summary.avgTemperature} unit="°C" icon={<Thermometer className="size-4" />} tone="ok" note="Within range" />
-        <StatCard label="Methane Level" value={summary.methane} icon={<Flame className="size-4" />} note="Mine average" />
-        <StatCard label="Air Quality" value={summary.airQuality} icon={<Wind className="size-4" />} note="AQI 48" />
-        <StatCard label="Active Alerts" value={summary.activeAlerts} icon={<AlertTriangle className="size-4" />} tone="crit" note="Needs attention" />
+      <PageTitle title="Command Overview" sub="Shift B · Underground Level 2 · Demo data" />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <Card i={0} label="Active Miners" value={String(s.activeMiners)} sub="Underground now" tone="ok" icon={<Users className="size-4" />} />
+        <Card i={1} label="Helmets Online" value={`${s.helmetsOnline} / ${s.helmetsTotal}`} sub={`${s.helmetsTotal - s.helmetsOnline} offline`} tone="ok" icon={<HardHat className="size-4" />} />
+        <Card i={2} label="Mine Safety" value={s.mineSafety} sub={s.mineSafetyNote} tone="ok" icon={<ShieldCheck className="size-4" />} />
+        <Card i={3} label="Active Alerts" value={String(s.alerts.total).padStart(2, "0")} sub={`${s.alerts.critical} critical · ${s.alerts.warning} warning`} tone="warn" icon={<AlertTriangle className="size-4" />} />
+        <Card i={4} label="Network" value={`${s.network.connected}%`} sub={s.network.name} tone="info" icon={<Network className="size-4" />} />
+        <Card i={5} label="Emergency" value="CLEAR" sub={s.sos} tone="ok" icon={<Siren className="size-4" />} />
       </div>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-3">
-        <Panel title="Mine Overview (Mock Map)" className="xl:col-span-2" action={<Link to="/map" className="font-mono text-xs text-primary">Open map →</Link>}>
-          <MineMap compact />
-        </Panel>
-        <Panel title="Critical Alerts" action={<Link to="/alerts" className="font-mono text-xs text-primary">All alerts →</Link>}>
-          <ul className="space-y-2">
-            {active.map((a) => (
-              <li key={a.id} className="rounded-sm border border-crit/40 bg-crit/5 p-3">
-                <div className="flex items-center justify-between gap-2"><span className="font-medium">{a.type}</span><StatusBadge value="Critical" /></div>
-                <p className="mt-1 font-mono text-xs text-muted-foreground">{a.helmetId} · {a.miner} · {a.zone} · {a.time}</p>
+      <div className="mt-5 grid gap-5 xl:grid-cols-[1.4fr_1fr]">
+        <section className="glass animate-fade-up relative overflow-hidden rounded-lg p-6" style={{ animationDelay: "200ms" }}>
+          <div className="grid-bg absolute inset-0 opacity-40" />
+          <div className="relative flex flex-col items-center gap-6 md:flex-row">
+            <div className="relative grid size-44 shrink-0 place-items-center">
+              <div className="absolute inset-0 rounded-full border-2 border-ok/30" />
+              <div className="absolute inset-3 rounded-full border border-ok/20" />
+              <div className="pulse-dot absolute inset-6 rounded-full bg-ok/10 text-ok" />
+              <div className="text-center">
+                <ShieldCheck className="mx-auto size-8 text-ok" />
+                <div className="mt-1 font-display text-4xl font-bold tracking-widest text-ok">{s.mineSafety}</div>
+              </div>
+            </div>
+            <div className="w-full">
+              <p className="label-caps">Mine Safety Status</p>
+              <p className="mt-2 text-muted-foreground">All monitored zones are currently within acceptable safety conditions.</p>
+              <ul className="mt-4 divide-y divide-border/60">
+                {s.indicators.map((x) => (
+                  <li key={x.label} className="flex items-center justify-between py-2 font-mono text-xs">
+                    <span className="uppercase tracking-wider text-muted-foreground">{x.label}</span>
+                    <span className="flex items-center gap-2 uppercase text-ok"><Dot tone="ok" />{x.value}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section className="glass animate-fade-up rounded-lg p-5" style={{ animationDelay: "260ms" }}>
+          <div className="mb-3 flex items-center justify-between"><h2 className="label-caps">Active Alerts</h2><Link to="/alerts" className="flex items-center gap-1 font-mono text-xs text-primary hover:underline">View all alerts <ArrowRight className="size-3" /></Link></div>
+          <ul className="space-y-2.5">
+            {homeAlerts.map((a) => {
+              const t = toneOf(a.level);
+              return (
+                <li key={a.title} className="flex items-start gap-3 rounded-md border bg-surface/60 p-3">
+                  <span className="mt-1.5"><Dot tone={t} pulse={t === "crit"} /></span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2"><span className="font-medium">{a.title}</span><span className="font-mono text-[11px] text-muted-foreground">{a.time}</span></div>
+                    <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">{a.helmetId} · {a.zone}</p>
+                  </div>
+                  <StatusBadge value={a.level === "Information" ? "Info" : a.level} tone={t} />
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      </div>
+
+      <div className="mt-5 grid gap-5 md:grid-cols-2">
+        <section className="glass rounded-lg p-5">
+          <h2 className="label-caps mb-3">Mine Status</h2>
+          <div className="grid grid-cols-2 gap-2.5">
+            {zoneStatus.map((z) => {
+              const t: Tone = z.status === "Safe" ? "ok" : toneOf(z.status);
+              return (
+                <div key={z.zone} className="flex items-center justify-between rounded-md border bg-surface/60 px-3 py-2.5">
+                  <span className="font-display text-lg uppercase tracking-wide">{z.zone}</span>
+                  <StatusBadge value={z.status} tone={t} />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+        <section className="glass rounded-lg p-5">
+          <h2 className="label-caps mb-3">Recent Activity</h2>
+          <ol className="relative ml-1 border-l">
+            {recentActivity.map((r) => (
+              <li key={r.time} className="mb-3 ml-4 last:mb-0">
+                <span className="absolute -left-[4.5px] mt-1.5"><Dot tone="info" /></span>
+                <span className="font-mono text-[11px] text-muted-foreground">{r.time}</span>
+                <p className="text-sm">{r.text}</p>
               </li>
             ))}
-          </ul>
-          <div className="mt-4">
-            <p className="label-caps mb-2">Avg temperature · last 12h</p>
-            <TrendArea data={env} x="t" series={[{ key: "temperature", color: "var(--chart-1)" }]} h={120} />
-          </div>
-        </Panel>
-      </div>
-
-      <div className="mt-4">
-        <div className="mb-2 flex items-center justify-between"><h2 className="label-caps">Helmet Feed</h2><Link to="/miners" className="font-mono text-xs text-primary">All miners →</Link></div>
-        <MinerTable rows={helmets.slice(0, 6)} />
+          </ol>
+        </section>
       </div>
     </>
   );
