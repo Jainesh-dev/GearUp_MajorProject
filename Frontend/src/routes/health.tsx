@@ -1,175 +1,146 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Fragment, useEffect, useState } from "react";
-import { Check, ChevronDown, Minus, TriangleAlert, X } from "lucide-react";
-
-import {
-  batteryTrend,
-  connectionHistory,
-  components,
-  helmetHealth,
-  helmets,
-  minerDetail,
-  overallHealth,
-  type Overall,
-} from "@/data/mockData";
-
-import {
-  Dot,
-  PageTitle,
-  StatCard,
-  StatusBadge,
-  batteryTone,
-  toneOf,
-  type Tone,
-} from "@/components/kit";
-
-import { TrendArea } from "@/components/Charts";
-import { getHelmetData } from "@/lib/api";
+import { useState } from "react";
+import { Clock, Search, UserCheck, UserX, Users } from "lucide-react";
+import { attendance, shifts } from "@/data/mockData";
+import { PageTitle, StatCard, StatusBadge } from "@/components/kit";
 
 export const Route = createFileRoute("/health")({
   head: () => ({
     meta: [
-      { title: "Helmet Health — GearUp" },
+      { title: "Attendance — GearUp" },
       {
         name: "description",
         content:
-          "Technical health of every smart helmet: ESP32, gas sensors, LoRa, GPS and battery.",
+          "Shift attendance with RFID entry and exit times for every miner.",
       },
-      {
-        property: "og:title",
-        content: "Helmet Health — GearUp",
-      },
+      { property: "og:title", content: "Attendance — GearUp" },
       {
         property: "og:description",
         content:
-          "Technical health of every smart helmet: ESP32, gas sensors, LoRa, GPS and battery.",
+          "Shift attendance with RFID entry and exit times for every miner.",
       },
     ],
   }),
-  component: HealthPage,
+  component: AttendancePage,
 });
 
-const overallTone: Record<Overall, Tone> = {
-  Healthy: "ok",
-  Warning: "warn",
-  Critical: "crit",
-  Offline: "off",
-};
+const statuses = ["All", "Present", "Absent", "Late"] as const;
 
-const cols = [
-  "ESP32",
-  "MQ4",
-  "MQ135",
-  "MQ2",
-  "DHT22",
-  "MPU6050",
-  "LoRa",
-  "GPS",
-] as const;
+const field =
+  "rounded-md border bg-card px-3 py-2 text-sm outline-none focus:border-primary";
 
-function Mark({ v }: { v: string }) {
-  const t = toneOf(v);
+// Only these three helmets appear on the Attendance page.
+const ATTENDANCE_HELMET_IDS = ["H001", "H002", "H003"];
 
-  if (t === "ok") {
-    return <Check className="mx-auto size-4 text-ok" />;
-  }
+function AttendancePage() {
+  const [date, setDate] = useState("2026-10-05");
+  const [shift, setShift] = useState(shifts[1]!);
+  const [q, setQ] = useState("");
+  const [st, setSt] = useState<(typeof statuses)[number]>("All");
 
-  if (t === "warn") {
-    return <TriangleAlert className="mx-auto size-4 text-warn" />;
-  }
+  // Keep attendance records for H001, H002, and H003 only.
+  const helmetAttendance = attendance.filter((a) =>
+    ATTENDANCE_HELMET_IDS.includes(a.helmetId),
+  );
 
-  if (t === "off") {
-    return <Minus className="mx-auto size-4 text-off" />;
-  }
+  const count = (status: string) =>
+    helmetAttendance.filter((a) => a.status === status).length;
 
-  return <X className="mx-auto size-4 text-crit" />;
-}
-
-function HealthPage() {
-  const [open, setOpen] = useState<string | null>(null);
-
-  // Live data coming from FastAPI
-  const [liveH001, setLiveH001] = useState<any>(null);
-
-  // Get H001 data from backend every 3 seconds
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadH001 = async () => {
-      try {
-        const data = await getHelmetData("H001");
-
-        if (!cancelled) {
-          setLiveH001(data);
-        }
-      } catch (error) {
-        console.error("Failed to load H001:", error);
-      }
-    };
-
-    // Load immediately
-    loadH001();
-
-    // Refresh every 3 seconds
-    const interval = setInterval(loadH001, 3000);
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
-
-  const tally = (o: Overall) =>
-    helmets.filter((h) => overallHealth(h) === o).length;
+  const rows = helmetAttendance.filter(
+    (a) =>
+      (st === "All" || a.status === st) &&
+      `${a.miner} ${a.helmetId}`.toLowerCase().includes(q.toLowerCase()),
+  );
 
   return (
     <>
-      <PageTitle
-        title="Helmet Health"
-        sub="Hardware diagnostics for every smart helmet"
-      />
+      <PageTitle title="Attendance" sub="RFID check-in log · demo data" />
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
-          label="Total Helmets"
-          value={helmets.length}
-          tone="info"
+          label="Total Miners"
+          value={helmetAttendance.length}
+          icon={<Users className="size-4" />}
         />
-
         <StatCard
-          label="Healthy"
-          value={tally("Healthy")}
+          label="Present"
+          value={count("Present")}
+          icon={<UserCheck className="size-4" />}
         />
-
         <StatCard
-          label="Warning"
-          value={tally("Warning")}
-          tone="warn"
-        />
-
-        <StatCard
-          label="Critical"
-          value={tally("Critical")}
+          label="Absent"
+          value={count("Absent")}
           tone="crit"
+          icon={<UserX className="size-4" />}
         />
-
         <StatCard
-          label="Offline"
-          value={tally("Offline")}
-          tone="off"
+          label="Late"
+          value={count("Late")}
+          tone="warn"
+          icon={<Clock className="size-4" />}
         />
       </div>
 
-      <div className="glass mt-5 overflow-x-auto rounded-lg">
-        <table className="w-full min-w-[980px] text-sm">
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className={`${field} [color-scheme:dark]`}
+        />
+
+        <select
+          value={shift}
+          onChange={(e) => setShift(e.target.value)}
+          className={field}
+        >
+          {shifts.map((s) => (
+            <option key={s}>{s}</option>
+          ))}
+        </select>
+
+        <div className="flex items-center gap-2 rounded-md border bg-card px-3">
+          <Search className="size-4 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search miner or helmet"
+            className="w-48 bg-transparent py-2 text-sm outline-none"
+          />
+        </div>
+
+        <div className="flex gap-1">
+          {statuses.map((s) => (
+            <button
+              key={s}
+              onClick={() => setSt(s)}
+              className={`rounded-md border px-3 py-2 font-mono text-xs ${
+                st === s
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass mt-3 overflow-x-auto rounded-lg">
+        <table className="w-full min-w-[700px] text-sm">
           <thead>
-            <tr>
-              {["Helmet ID", ...cols, "Battery", "Overall"].map((h, i) => (
+            <tr className="text-left">
+              {[
+                "Miner",
+                "Helmet ID",
+                "Entry Time",
+                "Exit Time",
+                "Zone",
+                "Status",
+              ].map((h) => (
                 <th
                   key={h}
-                  className={`label-caps border-b px-3 py-3 font-normal ${
-                    i === 0 ? "text-left" : "text-center"
-                  }`}
+                  className="label-caps border-b px-4 py-3 font-normal"
                 >
                   {h}
                 </th>
@@ -178,377 +149,42 @@ function HealthPage() {
           </thead>
 
           <tbody>
-            {helmets.map((h) => {
-              const isLive = h.id === "H001" && liveH001;
-
-              // Use live battery for H001
-              const battery = isLive
-                ? liveH001.battery
-                : h.battery;
-
-              const hh = helmetHealth(h);
-              const o = overallHealth(h);
-              const isOpen = open === h.id;
-
-              return (
-                <Fragment key={h.id}>
-                  <tr
-                    onClick={() =>
-                      setOpen(isOpen ? null : h.id)
-                    }
-                    className={`cursor-pointer border-t transition-colors hover:bg-accent/40 ${
-                      isOpen ? "bg-accent/40" : ""
-                    }`}
-                  >
-                    <td className="px-3 py-3">
-                      <span className="flex items-center gap-2 font-mono text-primary">
-                        <ChevronDown
-                          className={`size-4 text-muted-foreground transition-transform ${
-                            isOpen ? "rotate-180" : ""
-                          }`}
-                        />
-
-                        {h.id}
-
-                        {h.id === "H001" && liveH001 && (
-                          <span className="text-[10px] font-semibold text-ok">
-                            LIVE
-                          </span>
-                        )}
-                      </span>
-                    </td>
-
-                    {cols.map((c) => (
-                      <td key={c} className="px-3 py-3">
-                        <Mark v={hh[c]} />
-                      </td>
-                    ))}
-
-                    <td className="px-3 py-3 text-center font-mono text-xs">
-                      <span
-                        className={
-                          {
-                            ok: "text-ok",
-                            warn: "text-warn",
-                            crit: "text-crit",
-                            off: "text-off",
-                            info: "",
-                          }[batteryTone(battery)]
-                        }
-                      >
-                        {battery}%
-                      </span>
-                    </td>
-
-                    <td className="px-3 py-3 text-center">
-                      <StatusBadge
-                        value={o}
-                        tone={overallTone[o]}
-                      />
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td
-                      colSpan={cols.length + 3}
-                      className="p-0"
-                    >
-                      <div
-                        className={`grid transition-all duration-300 ${
-                          isOpen
-                            ? "grid-rows-[1fr] opacity-100"
-                            : "grid-rows-[0fr] opacity-0"
-                        }`}
-                      >
-                        <div className="overflow-hidden">
-                          {isOpen && (
-                            <Detail
-                              id={h.id}
-                              liveData={
-                                h.id === "H001"
-                                  ? liveH001
-                                  : undefined
-                              }
-                            />
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </Fragment>
-              );
-            })}
+            {rows.length > 0 ? (
+              rows.map((a) => (
+                <tr
+                  key={a.helmetId}
+                  className="border-t hover:bg-accent/40"
+                >
+                  <td className="px-4 py-3 font-medium">{a.miner}</td>
+                  <td className="px-4 py-3 font-mono text-primary">
+                    {a.helmetId}
+                  </td>
+                  <td className="px-4 py-3 font-mono">{a.entry}</td>
+                  <td className="px-4 py-3 font-mono">{a.exit}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {a.status === "Absent" ? "—" : a.zone}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge
+                      value={a.status}
+                      tone={a.status === "Present" ? "ok" : undefined}
+                    />
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-4 py-8 text-center text-muted-foreground"
+                >
+                  No attendance records found for these filters.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
     </>
-  );
-}
-
-function Detail({
-  id,
-  liveData,
-}: {
-  id: string;
-  liveData?: any;
-}) {
-  const h = helmets.find((x) => x.id === id)!;
-  const hh = helmetHealth(h);
-  const d = minerDetail(h);
-  const o = overallHealth(h);
-
-  // H001 has live backend data
-  const isLive = id === "H001" && liveData;
-
-  // Use live battery when available
-  const battery = isLive
-    ? liveData.battery
-    : h.battery;
-
-  return (
-    <div className="grid gap-4 border-t bg-surface/70 p-5 lg:grid-cols-3">
-
-      {/* LIVE SENSOR READINGS */}
-      {isLive && (
-        <div className="rounded-md border border-ok/30 bg-card p-4 lg:col-span-3">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-display text-lg font-semibold uppercase tracking-wide">
-              Live Sensor Readings
-            </h3>
-
-            <span className="font-mono text-xs font-semibold text-ok">
-              ● LIVE
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
-
-            {/* Temperature */}
-            <div className="rounded-md border bg-background/40 p-3">
-              <div className="label-caps">
-                Temperature
-              </div>
-
-              <div className="mt-1 font-mono text-xl">
-                {liveData.temperature}°C
-              </div>
-            </div>
-
-            {/* Humidity */}
-            <div className="rounded-md border bg-background/40 p-3">
-              <div className="label-caps">
-                Humidity
-              </div>
-
-              <div className="mt-1 font-mono text-xl">
-                {liveData.humidity}%
-              </div>
-            </div>
-
-            {/* MQ4 */}
-            <div className="rounded-md border bg-background/40 p-3">
-              <div className="label-caps">
-                MQ4
-              </div>
-
-              <div className="mt-1 font-mono text-xl">
-                {liveData.mq4}
-              </div>
-            </div>
-
-            {/* MQ135 */}
-            <div className="rounded-md border bg-background/40 p-3">
-              <div className="label-caps">
-                MQ135
-              </div>
-
-              <div className="mt-1 font-mono text-xl">
-                {liveData.mq135}
-              </div>
-            </div>
-
-            {/* MQ2 */}
-            <div className="rounded-md border bg-background/40 p-3">
-              <div className="label-caps">
-                MQ2
-              </div>
-
-              <div className="mt-1 font-mono text-xl">
-                {liveData.mq2}
-              </div>
-            </div>
-
-            {/* Impact */}
-            <div className="rounded-md border bg-background/40 p-3">
-              <div className="label-caps">
-                Impact
-              </div>
-
-              <div
-                className={`mt-1 font-mono text-xl ${
-                  liveData.impact
-                    ? "text-crit"
-                    : "text-ok"
-                }`}
-              >
-                {liveData.impact
-                  ? "DETECTED"
-                  : "NORMAL"}
-              </div>
-            </div>
-
-          </div>
-
-          <div className="mt-3 flex items-center justify-between font-mono text-xs text-muted-foreground">
-            <span>
-              Helmet: {liveData.helmet_id}
-            </span>
-
-            <span>
-              Zone: {liveData.zone}
-            </span>
-
-            <span>
-              Battery: {battery}%
-            </span>
-
-            <span>
-              Updated:{" "}
-              {liveData.timestamp
-                ? new Date(
-                    liveData.timestamp
-                  ).toLocaleTimeString()
-                : "—"}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* EXISTING HELMET COMPONENT STATUS */}
-      <div className="rounded-md border bg-card p-4">
-        <h3 className="font-display text-lg font-semibold uppercase tracking-wide">
-          Helmet {h.id}
-        </h3>
-
-        <ul className="mt-2">
-          {components.map((c) => (
-            <li
-              key={c}
-              className="flex justify-between border-b border-dashed border-border/70 py-1.5 font-mono text-xs last:border-0"
-            >
-              <span className="text-muted-foreground">
-                {c}
-              </span>
-
-              <span className="flex items-center gap-1.5 uppercase">
-                <Dot
-                  tone={
-                    c === "Battery"
-                      ? batteryTone(battery)
-                      : toneOf(hh[c])
-                  }
-                />
-
-                {hh[c]}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-3 flex items-center justify-between">
-          <span className="label-caps">
-            Overall Health
-          </span>
-
-          <StatusBadge
-            value={o}
-            tone={overallTone[o]}
-          />
-        </div>
-      </div>
-
-      {/* BATTERY TREND */}
-      <div className="rounded-md border bg-card p-4">
-        <h3 className="label-caps mb-2">
-          Battery Trend
-        </h3>
-
-        <TrendArea
-          data={batteryTrend(h)}
-          x="time"
-          series={[
-            {
-              key: "battery",
-              color: "var(--chart-3)",
-            },
-          ]}
-          h={170}
-        />
-      </div>
-
-      {/* HEALTH HISTORY */}
-      <div className="rounded-md border bg-card p-4">
-        <h3 className="label-caps mb-2">
-          Health History
-        </h3>
-
-        <dl className="space-y-1.5 font-mono text-xs">
-          <div className="flex justify-between">
-            <dt className="text-muted-foreground">
-              Last maintenance
-            </dt>
-
-            <dd>{d.maintenance}</dd>
-          </div>
-
-          <div className="flex justify-between">
-            <dt className="text-muted-foreground">
-              Last transmission
-            </dt>
-
-            <dd>
-              {isLive
-                ? new Date(
-                    liveData.timestamp
-                  ).toLocaleTimeString()
-                : h.lastUpdated}
-            </dd>
-          </div>
-
-          <div className="flex justify-between">
-            <dt className="text-muted-foreground">
-              Sensor status
-            </dt>
-
-            <dd>
-              {isLive
-                ? "Live sensor data"
-                : o === "Healthy"
-                  ? "All nominal (24h)"
-                  : "Fault logged today"}
-            </dd>
-          </div>
-        </dl>
-
-        <h3 className="label-caps mb-2 mt-4">
-          Connection History
-        </h3>
-
-        <ol className="space-y-1">
-          {connectionHistory(h).map((c, i) => (
-            <li
-              key={i}
-              className="flex gap-3 font-mono text-xs"
-            >
-              <span className="w-16 text-muted-foreground">
-                {c.time}
-              </span>
-
-              {c.text}
-            </li>
-          ))}
-        </ol>
-      </div>
-    </div>
   );
 }

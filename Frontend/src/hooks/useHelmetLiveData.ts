@@ -1,9 +1,11 @@
+
 import { useEffect, useState } from "react";
-import { getHelmetData } from "../lib/api";
+import { getHelmetData, type HelmetData } from "../lib/api";
 
 export function useHelmetLiveData(helmetId: string) {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<HelmetData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let stopped = false;
@@ -16,16 +18,25 @@ export function useHelmetLiveData(helmetId: string) {
           setData(result);
           setError(null);
         }
-      } catch {
+      } catch (err) {
         if (!stopped) {
-          setError("Backend connection failed");
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Unable to fetch helmet data."
+          );
+        }
+      } finally {
+        if (!stopped) {
+          setLoading(false);
         }
       }
     };
 
+    setLoading(true);
     load();
 
-    // Update every 3 seconds
+    // Refresh readings every 3 seconds.
     const timer = setInterval(load, 3000);
 
     return () => {
@@ -34,5 +45,5 @@ export function useHelmetLiveData(helmetId: string) {
     };
   }, [helmetId]);
 
-  return { data, error };
+  return { data, error, loading };
 }
