@@ -223,7 +223,8 @@ function HealthPage() {
     Record<string, HelmetLiveState>
   >({});
 
-  const selectedHelmet = HEALTH_HELMET_IDS[activeIndex];
+  const selectedHelmet = 
+    HEALTH_HELMET_IDS[activeIndex]  ?? HEALTH_HELMET_IDS[0];
   const activeState = helmetData[selectedHelmet];
   const liveData = activeState?.data ?? null;
 
@@ -289,11 +290,7 @@ function HealthPage() {
             loading: false,
           };
 
-          // Keep the first render's loading state until its first request
-          // finishes; subsequent refreshes update with the newest result.
-          if (!previousState && result.latestResult.status === "rejected") {
-            next[result.helmetId].loading = false;
-          }
+            
         }
 
         return next;
@@ -539,7 +536,7 @@ function HealthPage() {
 
       {/* Only H001, H002 and H003 are listed here */}
       <div className="glass mt-5 overflow-x-auto rounded-lg">
-        <table className="w-full min-w-[1050px] text-sm">
+        <table className="w-full min-w-262.5 text-sm">
           <thead>
             <tr>
               {["Helmet ID", ...cols, "Battery", "Overall"].map(
@@ -722,7 +719,7 @@ function LiveMetric({
   return (
     <div className="rounded-md border border-border/70 bg-card p-3">
       <p className="label-caps">{label}</p>
-      <p className="mt-2 break-words font-mono text-xl font-semibold">
+      <p className="mt-2 wrap-break-words font-mono text-xl font-semibold">
         {value}
         {unit && (
           <span className="ml-1 text-xs text-muted-foreground">
@@ -1037,7 +1034,7 @@ function DetailRow({
   return (
     <div className="flex justify-between gap-4">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className="break-words text-right">{value}</dd>
+      <dd className="wrap-break-words text-right">{value}</dd>
     </div>
   );
 }

@@ -96,6 +96,17 @@
     { miner: "Helmet 1", helmetId: "H001", entry: "07:58 AM", exit: "—", status: "Present", zone: "Zone A" },
     { miner: "Helmet 2", helmetId: "H002", entry: "08:01 AM", exit: "—", status: "Present", zone: "Zone A" },
     { miner: "Helmet 3", helmetId: "H003", entry: "08:22 AM", exit: "—", status: "Late", zone: "Zone B" },
+    { miner: "Vikram Singh", helmetId: "H004", entry: "07:55 AM", exit: "—", status: "Present", zone: "Zone C" },
+    { miner: "Priya Nair", helmetId: "H005", entry: "08:03 AM", exit: "—", status: "Present", zone: "Zone B" },
+    { miner: "Manoj Yadav", helmetId: "H006", entry: "08:00 AM", exit: "—", status: "Present", zone: "Zone D" },
+    { miner: "Deepak Kumar", helmetId: "H007", entry: "08:31 AM", exit: "—", status: "Late", zone: "Zone D" },
+    { miner: "Anil Gupta", helmetId: "H008", entry: "07:59 AM", exit: "—", status: "Present", zone: "Zone C" },
+    { miner: "Ravi Joshi", helmetId: "H009", entry: "07:50 AM", exit: "09:58 AM", status: "Present", zone: "Zone E" },
+    { miner: "Kiran Desai", helmetId: "H010", entry: "08:02 AM", exit: "—", status: "Present", zone: "Zone E" },
+    { miner: "Sanjay Rao", helmetId: "H011", entry: "08:04 AM", exit: "—", status: "Present", zone: "Zone A" },
+    { miner: "Arjun Mehta", helmetId: "H012", entry: "08:00 AM", exit: "—", status: "Present", zone: "Zone B" },
+    { miner: "Nitin Pawar", helmetId: "H013", entry: "—", exit: "—", status: "Absent", zone: "Zone C" },
+    { miner: "Rohit Shinde", helmetId: "H014", entry: "—", exit: "—", status: "Absent", zone: "Zone D" },
   ];
 
   export const cameras = [
